@@ -1,0 +1,18 @@
+import requests
+import json
+def emotion_detector(text_to_analyze):
+    data_post={ "raw_document": { "text": text_to_analyze } }
+    data_json=json.dumps(data_post)
+    heads={"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
+    url='https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
+    df=requests.post(url,data=data_json,headers=heads)
+    data_dicts=df.json()
+    data_final_dicts=data_dicts["emotionPredictions"][0]["emotion"]
+    maxs=float(data_final_dicts["anger"])
+    dom_emot="anger"
+    for i in data_final_dicts.keys():
+        if(float(data_final_dicts[i])>maxs):
+            maxs=float(data_final_dicts[i])
+            dom_emot=i
+    data_final_dicts.update({"dominant_emotion":dom_emot})
+    return data_final_dicts
