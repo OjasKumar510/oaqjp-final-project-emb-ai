@@ -1,0 +1,31 @@
+from flask import Flask,render_template,request,make_response
+import EmotionDetection 
+from EmotionDetection import emotion_detection
+my_app=Flask(__name__)
+@my_app.route("/")
+def render_indexs():
+    return make_response(render_template("index.html"),200)
+@my_app.route("/emotionDetector")
+def extract_input_show_output():
+    input_dict=request.args
+    text_to_analyze=input_dict["textToAnalyze"]
+    data_send=emotion_detection.emotion_detector(text_to_analyze)
+    str_output="For the given statement, the system response is "
+    lists=list(data_send.keys())
+    for i in range(len(lists)-1):
+        str_output+=lists[i]
+        str_output+=": "
+        str_output+=str(data_send[lists[i]])
+        if(i<len(lists)-3):
+            str_output+=", "
+        elif(i==len(lists)-3):
+            str_output+=" and "
+        elif(i==len(lists)-2):
+            str_output+=". "
+    str_output+=" The dominant emotion is "
+    str_output+=lists[i]
+    str_output+="."
+    return make_response(str_output,200)
+
+if(__name__=="__main__"):
+    my_app.run(debug=True)
